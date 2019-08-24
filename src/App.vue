@@ -1,30 +1,28 @@
 <template>
   <div id="app">
-    <HelloWorld msg="test" />
+    <Tree msg=""/>
   </div>
 </template>
 
-<script>
-import HelloWorld from "./components/HelloWorld.vue";
+<script lang="ts">
+import { Component, Vue } from 'vue-property-decorator';
+import Tree from './components/Tree.vue';
 
-export default {
-  name: "app",
+@Component({
   components: {
-    HelloWorld
-  }
-};
+    Tree,
+  },
+})
+export default class App extends Vue {}
 </script>
 
 <style>
 #app {
-  font-family: "Avenir", Helvetica, Arial, sans-serif;
+  font-family: 'Avenir', Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  text-align: center;
   color: #2c3e50;
-  width: 100%;
-  height: 100%;
-  position: absolute;
-  left: 0;
-  top: 0;
+  margin-top: 60px;
 }
 </style>
