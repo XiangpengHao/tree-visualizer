@@ -4,22 +4,12 @@
 
 <script>
 import * as d3 from "d3";
+import colorMapping from "../assets/color_mapping.json";
 import small_insert from "../assets/small_insert.json";
 import large_insert from "../assets/large_insert2.json";
 
-let rawTreeData = {
-  name: "Top Level",
-  children: [
-    {
-      name: "Level 2: A",
-      children: [{ name: "Son of A" }, { name: "Daughter of A" }]
-    },
-    { name: "Level 2: B" }
-  ]
-};
-
 export default {
-  name: "HelloWorld",
+  name: "Tree",
   props: {
     msg: String
   },
@@ -35,7 +25,7 @@ export default {
   mounted() {
     let newTreeData = large_insert[49].t;
     // Set the dimensions and margins of the diagram
-    var margin = { top: 20, right: 90, bottom: 30, left: 90 },
+    let margin = { top: 20, right: 90, bottom: 30, left: 90 },
       width = 960 - margin.left - margin.right,
       height = 1000 - margin.top - margin.bottom;
 
@@ -104,7 +94,11 @@ export default {
         .attr("class", "node")
         .attr("r", 1e-6)
         .style("fill", function(d) {
-          return d._children ? "lightsteelblue" : "#fff";
+          if (d.data.tl === undefined) {
+            let parent = d.parent;
+            return colorMapping[parent.data.tl][parent.data.nl + 1];
+          }
+          return colorMapping[d.data.tl][d.data.nl];
         });
 
       // Add labels for the nodes
@@ -120,7 +114,7 @@ export default {
         .text(function(d) {
           if (d.data.ad) {
             return `0x${d.data.ad.toString(16)}`;
-          }else{
+          } else {
             return d.data;
           }
         });
@@ -141,7 +135,11 @@ export default {
         .select("circle.node")
         .attr("r", 10)
         .style("fill", function(d) {
-          return d._children ? "lightsteelblue" : "#fff";
+          if (d.data.tl === undefined) {
+            let parent = d.parent;
+            return colorMapping[parent.data.tl][parent.data.nl + 1];
+          }
+          return colorMapping[d.data.tl][d.data.nl];
         })
         .attr("cursor", "pointer");
 
@@ -232,6 +230,9 @@ export default {
         d._children = null;
       }
       this.update(d);
+    },
+    hasChild(d) {
+      return d._children || d.children;
     }
   }
 };
@@ -242,7 +243,7 @@ export default {
 <style>
 .node circle {
   fill: #fff;
-  stroke: steelblue;
+  stroke: rgba(1, 1, 1, 0.2);
   stroke-width: 3px;
 }
 
