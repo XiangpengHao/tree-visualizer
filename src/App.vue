@@ -1,19 +1,19 @@
 <template>
   <div id="app">
-    <Tree msg=""/>
+    <img alt="Vue logo" src="./assets/logo.png">
+    <HelloWorld msg="Welcome to Your Vue.js App"/>
   </div>
 </template>
 
-<script lang="ts">
-import { Component, Vue } from 'vue-property-decorator';
-import Tree from './components/Tree.vue';
+<script>
+import HelloWorld from './components/HelloWorld.vue'
 
-@Component({
+export default {
+  name: 'app',
   components: {
-    Tree,
-  },
-})
-export default class App extends Vue {}
+    HelloWorld
+  }
+}
 </script>
 
 <style>
