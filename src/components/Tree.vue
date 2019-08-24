@@ -22,12 +22,6 @@ export default {
     };
   },
   mounted() {
-    let newTreeData = large_insert[49].t;
-    // Set the dimensions and margins of the diagram
-    let margin = { top: 20, right: 90, bottom: 30, left: 90 },
-      width = 960 - margin.left - margin.right,
-      height = 1000 - margin.top - margin.bottom;
-
     // append the svg object to the body of the page
     // appends a 'group' element to 'svg'
     // moves the 'group' element to the top left margin
