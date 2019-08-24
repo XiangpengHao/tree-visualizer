@@ -19,3 +19,5 @@ yarn-error.log*
 *.njsproj
 *.sln
 *.sw?
+
+src/assets/large_insert2.json

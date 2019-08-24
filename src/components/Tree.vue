@@ -4,7 +4,10 @@
 
 <script>
 import * as d3 from "d3";
-let treeData = {
+import small_insert from "../assets/small_insert.json";
+import large_insert from "../assets/large_insert2.json";
+
+let rawTreeData = {
   name: "Top Level",
   children: [
     {
@@ -30,10 +33,11 @@ export default {
     };
   },
   mounted() {
+    let newTreeData = large_insert[49].t;
     // Set the dimensions and margins of the diagram
     var margin = { top: 20, right: 90, bottom: 30, left: 90 },
       width = 960 - margin.left - margin.right,
-      height = 500 - margin.top - margin.bottom;
+      height = 1000 - margin.top - margin.bottom;
 
     // append the svg object to the body of the page
     // appends a 'group' element to 'svg'
@@ -50,11 +54,12 @@ export default {
     this.treemap = d3.tree().size([height, width]);
 
     // Assigns parent, children, height, depth
-    this.root = d3.hierarchy(treeData, function(d) {
-      return d.children;
+    this.root = d3.hierarchy(newTreeData, function(d) {
+      return d.cd;
     });
     this.root.x0 = height / 2;
     this.root.y0 = 0;
+    console.log(this.root);
 
     // Collapse after the second level
     this.root.children.forEach(this.collapse);
@@ -113,7 +118,11 @@ export default {
           return d.children || d._children ? "end" : "start";
         })
         .text(function(d) {
-          return d.data.name;
+          if (d.data.ad) {
+            return `0x${d.data.ad.toString(16)}`;
+          }else{
+            return d.data;
+          }
         });
 
       // UPDATE
@@ -238,7 +247,7 @@ export default {
 }
 
 .node text {
-  font: 12px sans-serif;
+  font: 12px consolas;
 }
 
 .link {
