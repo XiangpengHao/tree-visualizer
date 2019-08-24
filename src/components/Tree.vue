@@ -5,21 +5,28 @@
 <script>
 import * as d3 from "d3";
 import colorMapping from "../assets/color_mapping.json";
-import large_insert from "../assets/large_insert2.json";
+const margin = { top: 20, right: 90, bottom: 30, left: 90 };
+const width = 960 - margin.left - margin.right;
+const height = 1000 - margin.top - margin.bottom;
 
 export default {
   name: "Tree",
   props: {
-    msg: String
+    rawTree: Object
   },
   data() {
     return {
       treemap: null,
       root: null,
       svg: null,
-      duration: 750,
+      duration: 500,
       i: 0
     };
+  },
+  watch: {
+    rawTree() {
+      this.rerender();
+    }
   },
   mounted() {
     // append the svg object to the body of the page
@@ -35,21 +42,22 @@ export default {
 
     // declares a tree layout and assigns the size
     this.treemap = d3.tree().size([height, width]);
-
-    // Assigns parent, children, height, depth
-    this.root = d3.hierarchy(newTreeData, function(d) {
-      return d.cd;
-    });
-    this.root.x0 = height / 2;
-    this.root.y0 = 0;
-    console.log(this.root);
-
-    // Collapse after the second level
-    this.root.children.forEach(this.collapse);
-
-    this.update(this.root);
+    this.rerender();
   },
   methods: {
+    rerender() {
+      // Assigns parent, children, height, depth
+      this.root = d3.hierarchy(this.rawTree, function(d) {
+        return d.cd;
+      });
+      this.root.x0 = height / 2;
+      this.root.y0 = 0;
+
+      // Collapse after the second level
+      this.root.children.forEach(this.collapse);
+
+      this.update(this.root);
+    },
     update(source) {
       let self = this;
       // Assigns the x and y position for the nodes
