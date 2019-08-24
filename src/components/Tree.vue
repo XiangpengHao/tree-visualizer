@@ -5,7 +5,6 @@
 <script>
 import * as d3 from "d3";
 import colorMapping from "../assets/color_mapping.json";
-import small_insert from "../assets/small_insert.json";
 import large_insert from "../assets/large_insert2.json";
 
 export default {
@@ -83,7 +82,7 @@ export default {
         .enter()
         .append("g")
         .attr("class", "node")
-        .attr("transform", function(d) {
+        .attr("transform", function() {
           return "translate(" + source.y0 + "," + source.x0 + ")";
         })
         .on("click", this.click);
@@ -148,7 +147,7 @@ export default {
         .exit()
         .transition()
         .duration(this.duration)
-        .attr("transform", function(d) {
+        .attr("transform", function() {
           return "translate(" + source.y + "," + source.x + ")";
         })
         .remove();
@@ -171,7 +170,7 @@ export default {
         .enter()
         .insert("path", "g")
         .attr("class", "link")
-        .attr("d", function(d) {
+        .attr("d", function() {
           var o = { x: source.x0, y: source.y0 };
           return self.diagonal(o, o);
         });
@@ -188,11 +187,11 @@ export default {
         });
 
       // Remove any exiting links
-      var linkExit = link
+      link
         .exit()
         .transition()
         .duration(this.duration)
-        .attr("d", function(d) {
+        .attr("d", function() {
           var o = { x: source.x, y: source.y };
           return self.diagonal(o, o);
         })
