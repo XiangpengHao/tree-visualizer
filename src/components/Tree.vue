@@ -46,6 +46,9 @@ export default {
   },
   methods: {
     rerender() {
+      if (!this.rawTree.cd) {
+        return;
+      }
       // Assigns parent, children, height, depth
       this.root = d3.hierarchy(this.rawTree, function(d) {
         return d.cd;
