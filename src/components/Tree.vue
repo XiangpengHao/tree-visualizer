@@ -4,23 +4,32 @@
 
 <script>
 import * as d3 from "d3";
+let treeData = {
+  name: "Top Level",
+  children: [
+    {
+      name: "Level 2: A",
+      children: [{ name: "Son of A" }, { name: "Daughter of A" }]
+    },
+    { name: "Level 2: B" }
+  ]
+};
+
 export default {
   name: "HelloWorld",
   props: {
     msg: String
   },
-  mounted() {
-    var treeData = {
-      name: "Top Level",
-      children: [
-        {
-          name: "Level 2: A",
-          children: [{ name: "Son of A" }, { name: "Daughter of A" }]
-        },
-        { name: "Level 2: B" }
-      ]
+  data() {
+    return {
+      treemap: null,
+      root: null,
+      svg: null,
+      duration: 750,
+      i: 0
     };
-
+  },
+  mounted() {
     // Set the dimensions and margins of the diagram
     var margin = { top: 20, right: 90, bottom: 30, left: 90 },
       width = 960 - margin.left - margin.right,
@@ -29,7 +38,7 @@ export default {
     // append the svg object to the body of the page
     // appends a 'group' element to 'svg'
     // moves the 'group' element to the top left margin
-    var svg = d3
+    this.svg = d3
       .select("#tree")
       .append("svg")
       .attr("width", width + margin.right + margin.left)
@@ -37,37 +46,26 @@ export default {
       .append("g")
       .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-    var i = 0,
-      duration = 750,
-      root;
-
     // declares a tree layout and assigns the size
-    var treemap = d3.tree().size([height, width]);
+    this.treemap = d3.tree().size([height, width]);
 
     // Assigns parent, children, height, depth
-    root = d3.hierarchy(treeData, function(d) {
+    this.root = d3.hierarchy(treeData, function(d) {
       return d.children;
     });
-    root.x0 = height / 2;
-    root.y0 = 0;
+    this.root.x0 = height / 2;
+    this.root.y0 = 0;
 
     // Collapse after the second level
-    root.children.forEach(collapse);
+    this.root.children.forEach(this.collapse);
 
-    update(root);
-
-    // Collapse the node and all it's children
-    function collapse(d) {
-      if (d.children) {
-        d._children = d.children;
-        d._children.forEach(collapse);
-        d.children = null;
-      }
-    }
-
-    function update(source) {
+    this.update(this.root);
+  },
+  methods: {
+    update(source) {
+      let self = this;
       // Assigns the x and y position for the nodes
-      var treeData = treemap(root);
+      var treeData = this.treemap(this.root);
 
       // Compute the new tree layout.
       var nodes = treeData.descendants(),
@@ -81,8 +79,8 @@ export default {
       // ****************** Nodes section ***************************
 
       // Update the nodes...
-      var node = svg.selectAll("g.node").data(nodes, function(d) {
-        return d.id || (d.id = ++i);
+      var node = this.svg.selectAll("g.node").data(nodes, function(d) {
+        return d.id || (d.id = ++self.i);
       });
 
       // Enter any new modes at the parent's previous position.
@@ -93,7 +91,7 @@ export default {
         .attr("transform", function(d) {
           return "translate(" + source.y0 + "," + source.x0 + ")";
         })
-        .on("click", click);
+        .on("click", this.click);
 
       // Add Circle for the nodes
       nodeEnter
@@ -124,7 +122,7 @@ export default {
       // Transition to the proper position for the node
       nodeUpdate
         .transition()
-        .duration(duration)
+        .duration(this.duration)
         .attr("transform", function(d) {
           return "translate(" + d.y + "," + d.x + ")";
         });
@@ -142,7 +140,7 @@ export default {
       var nodeExit = node
         .exit()
         .transition()
-        .duration(duration)
+        .duration(this.duration)
         .attr("transform", function(d) {
           return "translate(" + source.y + "," + source.x + ")";
         })
@@ -157,7 +155,7 @@ export default {
       // ****************** links section ***************************
 
       // Update the links...
-      var link = svg.selectAll("path.link").data(links, function(d) {
+      var link = this.svg.selectAll("path.link").data(links, function(d) {
         return d.id;
       });
 
@@ -168,7 +166,7 @@ export default {
         .attr("class", "link")
         .attr("d", function(d) {
           var o = { x: source.x0, y: source.y0 };
-          return diagonal(o, o);
+          return self.diagonal(o, o);
         });
 
       // UPDATE
@@ -177,19 +175,19 @@ export default {
       // Transition back to the parent element position
       linkUpdate
         .transition()
-        .duration(duration)
+        .duration(this.duration)
         .attr("d", function(d) {
-          return diagonal(d, d.parent);
+          return self.diagonal(d, d.parent);
         });
 
       // Remove any exiting links
       var linkExit = link
         .exit()
         .transition()
-        .duration(duration)
+        .duration(this.duration)
         .attr("d", function(d) {
           var o = { x: source.x, y: source.y };
-          return diagonal(o, o);
+          return self.diagonal(o, o);
         })
         .remove();
 
@@ -198,28 +196,33 @@ export default {
         d.x0 = d.x;
         d.y0 = d.y;
       });
-
-      // Creates a curved (diagonal) path from parent to the child nodes
-      function diagonal(s, d) {
-        let path = `M ${s.y} ${s.x}
+    },
+    // Collapse the node and all it's children
+    collapse(d) {
+      if (d.children) {
+        d._children = d.children;
+        d._children.forEach(this.collapse);
+        d.children = null;
+      }
+    },
+    // Creates a curved (diagonal) path from parent to the child nodes
+    diagonal(s, d) {
+      let path = `M ${s.y} ${s.x}
             C ${(s.y + d.y) / 2} ${s.x},
               ${(s.y + d.y) / 2} ${d.x},
               ${d.y} ${d.x}`;
-
-        return path;
+      return path;
+    },
+    // Toggle children on click.
+    click(d) {
+      if (d.children) {
+        d._children = d.children;
+        d.children = null;
+      } else {
+        d.children = d._children;
+        d._children = null;
       }
-
-      // Toggle children on click.
-      function click(d) {
-        if (d.children) {
-          d._children = d.children;
-          d.children = null;
-        } else {
-          d.children = d._children;
-          d._children = null;
-        }
-        update(d);
-      }
+      this.update(d);
     }
   }
 };
