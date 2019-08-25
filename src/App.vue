@@ -11,7 +11,7 @@
 
 <script>
 import Tree from "./components/Tree.vue";
-import large_json from "./assets/large_insert2.json";
+import large_json from "./assets/small_insert.json";
 
 export default {
   name: "app",
