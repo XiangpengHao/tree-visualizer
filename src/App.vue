@@ -5,7 +5,7 @@
     </el-select>
     <input id="file-upload" @change="onFileChange" accept="*.json" type="file" />
     <el-card class="info">{{nodeData}}</el-card>
-    <Tree :rawTree="subTreeJson" v-on:nodeDetail="computeNode" />
+    <Tree :rawTree="subTreeJson" v-on:nodeDetail="nodeDetail" />
   </div>
 </template>
 
@@ -46,24 +46,34 @@ export default {
       };
       reader.readAsText(self.file);
     },
-    computeNode(d) {
+    nodeDetail(d) {
       if (!d.data.ad) {
         return;
       }
+      console.log(d);
+      let subnodeData = this.countSubNode(d.data);
+
       let nodeString = `node addr: 0x${d.data.ad.toString(16)}, node level: ${
         d.data.nl
       }, tree level: ${d.data.tl}, children count: ${
         d.data.cd.length
-      }, subnode count: ${this.countSubNode(d.data)}`;
+      }, subnode count: ${subnodeData[0]}(internal), ${subnodeData[1]}(leaf)`;
       this.nodeData = nodeString;
     },
+    siblingDis(d) {
+      let parent = d.parent;
+    },
     countSubNode(d) {
-      if (!d.cd) {
-        return 0;
-      }
-      let count = d.cd.length;
+      let count = [0, 0];
       for (let i = 0; i < d.cd.length; i += 1) {
-        count += this.countSubNode(d.cd[i]);
+        if (!d.cd[i].cd) {
+          count[1] += 1;
+        } else {
+          let sub = this.countSubNode(d.cd[i]);
+          count[0] += 1;
+          count[0] += sub[0];
+          count[1] += sub[1];
+        }
       }
       return count;
     }
@@ -75,7 +85,7 @@ export default {
   position: fixed;
   right: 1em;
   top: 4em;
-  width: 20%;
+  width: 25%;
   height: 20%;
 }
 </style>
