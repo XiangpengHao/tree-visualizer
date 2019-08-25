@@ -6,8 +6,8 @@
 import * as d3 from "d3";
 import colorMapping from "../assets/color_mapping.json";
 const margin = { top: 20, right: 90, bottom: 30, left: 90 };
-const width = 960 - margin.left - margin.right;
-const height = 1000 - margin.top - margin.bottom;
+const width = 1500 - margin.left - margin.right;
+const height = 1500 - margin.top - margin.bottom;
 
 export default {
   name: "Tree",
@@ -90,6 +90,7 @@ export default {
         .attr("transform", function() {
           return "translate(" + source.y0 + "," + source.x0 + ")";
         })
+        // .on("mouseover", this.nodeHover)
         .on("click", this.click);
 
       // Add Circle for the nodes
@@ -226,6 +227,10 @@ export default {
     },
     // Toggle children on click.
     click(d) {
+      if (d3.event.ctrlKey || d3.event.altKey) {
+        this.$emit("nodeDetail", d);
+        return;
+      }
       if (d.children) {
         d._children = d.children;
         d.children = null;
